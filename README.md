@@ -439,3 +439,67 @@ void dispose() {
 ```bash
 flutter run -t lib/chapter11/websocket_demo.dart
 ```
+
+---
+
+## 11.6 使用Socket API
+
+> 原文链接：[https://book.flutterchina.club/chapter11/socket.html](https://book.flutterchina.club/chapter11/socket.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| `Socket.connect()` | `dart:io` 底层 Socket API，直接建立 TCP 连接 |
+| 手动拼接 HTTP 报文 | 通过 `socket.writeln()` 逐行构造请求行与请求头 |
+| `socket.flush()` | 将缓冲区数据刷入网络，保证请求发送完成 |
+| `utf8.decoder.bind(socket)` | 将 Socket 流的二进制数据按 UTF-8 解码为字符串 |
+| 自定义协议 | 不依赖 HttpClient，可自由实现任意应用层协议 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.6%20Socket%20API-代码.png) | ![运行](assets/演示截图/11.6%20Socket%20API-运行效果.png) |
+
+### 核心代码示例
+
+**通过 Socket 实现 HTTP GET 请求**
+
+```dart
+Future<String> _request() async {
+  // 建立 TCP 连接
+  var socket = await Socket.connect("baidu.com", 80);
+  // 手动拼接 HTTP 协议报文
+  socket.writeln("GET / HTTP/1.1");
+  socket.writeln("Host:baidu.com");
+  socket.writeln("Connection:close");
+  socket.writeln();
+  // 刷新缓冲区，发送请求
+  await socket.flush();
+  // 读取响应并按 UTF-8 解码
+  String response = await utf8.decoder.bind(socket).join();
+  await socket.close();
+  return response;
+}
+```
+
+**UI 层通过 FutureBuilder 展示结果**
+
+```dart
+FutureBuilder<String>(
+  future: _request(),
+  builder: (context, snapShot) {
+    if (snapShot.connectionState != ConnectionState.done) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Text(snapShot.data.toString());
+  },
+)
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/socket_demo.dart
+```
