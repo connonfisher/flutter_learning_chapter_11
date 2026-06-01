@@ -366,3 +366,76 @@ Future<void> mergeTempFiles(int chunk) async {
 ```bash
 flutter run -t lib/chapter11/download_with_chunks.dart
 ```
+
+---
+
+## 11.5 WebSocket
+
+> 原文链接：[https://book.flutterchina.club/chapter11/websocket.html](https://book.flutterchina.club/chapter11/websocket.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| `WebSocketChannel.connect()` | 跨平台 API，连接 WebSocket 服务器 |
+| `channel.stream` | 通过 `StreamBuilder` 监听服务器推送的消息 |
+| `channel.sink.add()` | 向服务器发送消息 |
+| `channel.sink.close()` | 关闭 WebSocket 连接（在 `dispose` 中调用） |
+| 二进制数据 | `StreamBuilder` 自动识别文本/二进制类型 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.5%20WebSocket-代码.png) | ![运行](assets/演示截图/11.5%20WebSocket-运行效果.png) |
+
+### 核心代码示例
+
+**建立连接 & 监听消息**
+
+```dart
+late WebSocketChannel channel;
+
+@override
+void initState() {
+  super.initState();
+  channel = WebSocketChannel.connect(Uri.parse('wss://echo.websocket.events'));
+}
+
+StreamBuilder(
+  stream: channel.stream,
+  builder: (context, snapshot) {
+    if (snapshot.hasError) {
+      _text = "网络不通...";
+    } else if (snapshot.hasData) {
+      _text = "echo: ${snapshot.data}";
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24.0),
+      child: Text(_text),
+    );
+  },
+)
+```
+
+**发送消息 & 关闭连接**
+
+```dart
+void _sendMessage() {
+  if (_controller.text.isNotEmpty) {
+    channel.sink.add(_controller.text);
+  }
+}
+
+@override
+void dispose() {
+  channel.sink.close();
+  super.dispose();
+}
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/websocket_demo.dart
+```

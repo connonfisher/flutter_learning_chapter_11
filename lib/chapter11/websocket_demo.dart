@@ -26,7 +26,9 @@ class _WebSocketRouteState extends State<WebSocketRoute> {
   @override
   void initState() {
     super.initState();
-    channel = WebSocketChannel.connect(Uri.parse('wss://echo.websocket.events'));
+    channel = WebSocketChannel.connect(
+      Uri.parse('wss://echo.websocket.events'),
+    );
   }
 
   @override
