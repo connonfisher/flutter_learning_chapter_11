@@ -290,3 +290,79 @@ response = await dio.post("/info", data: formData);
 ```bash
 flutter run -t lib/chapter11/dio_request.dart
 ```
+
+---
+
+## 11.4 实例：Http分块下载
+
+> 原文链接：[https://book.flutterchina.club/chapter11/download_with_chunks.html](https://book.flutterchina.club/chapter11/download_with_chunks.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| HTTP Range 请求头 | `bytes=start-end` 指定下载区间，服务器返回 206 Partial Content |
+| `Content-Range` | 解析响应头获取文件总长度和当前分块范围 |
+| 分块并发下载 | 按字节切分文件，多个分块通过 `Future.wait` 并发下载 |
+| 临时文件合并 | 各分块存入 temp0/temp1... 临时文件，全部完成后 `openWrite` 追加合并 |
+| 进度回调 | 聚合所有分块已接收字节数，实时展示下载百分比 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.4%20Http分块下载-代码.png) | ![运行](assets/演示截图/11.4%20Http分块下载-运行效果.png) |
+
+### 核心代码示例
+
+**检测分块支持 & 发起第一个分块请求**
+
+```dart
+Response response = await downloadChunk(url, 0, firstChunkSize, 0);
+if (response.statusCode == 206) {
+  total = int.parse(
+    response.headers
+        .value(HttpHeaders.contentRangeHeader)!
+        .split("/")
+        .last,
+  );
+  // 计算剩余长度和分块数量...
+}
+```
+
+**分块下载请求**
+
+```dart
+Future<Response> downloadChunk(String url, int start, int end, int no) async {
+  progress.add(0);
+  --end;
+  return dio.download(
+    url,
+    "${savePath}temp$no",
+    onReceiveProgress: createCallback(no),
+    options: Options(headers: {"range": "bytes=$start-$end"}),
+  );
+}
+```
+
+**合并临时文件**
+
+```dart
+Future<void> mergeTempFiles(int chunk) async {
+  File f = File("${savePath}temp0");
+  IOSink ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
+  for (int i = 1; i < chunk; ++i) {
+    File f2 = File("${savePath}temp$i");
+    await ioSink.addStream(f2.openRead());
+    await f2.delete();
+  }
+  await ioSink.close();
+  await f.rename(savePath);
+}
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/download_with_chunks.dart
+```
