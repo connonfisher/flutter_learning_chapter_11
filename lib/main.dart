@@ -5,6 +5,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'native_init.dart' if (dart.library.html) 'web_init.dart';
+
 import 'chapter11/file_operation.dart'
     if (dart.library.html) 'chapter11/web_stub.dart';
 import 'chapter11/http_client.dart'
@@ -17,7 +19,10 @@ import 'chapter11/socket_demo.dart'
     if (dart.library.html) 'chapter11/web_stub.dart';
 import 'chapter11/json_model.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  initPlatform();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
