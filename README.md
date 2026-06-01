@@ -503,3 +503,91 @@ FutureBuilder<String>(
 ```bash
 flutter run -t lib/chapter11/socket_demo.dart
 ```
+
+---
+
+## 11.7 JSON转Dart Model类
+
+> 原文链接：[https://book.flutterchina.club/chapter11/json_model.html](https://book.flutterchina.club/chapter11/json_model.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| `json.decode()` | `dart:convert` 将 JSON 字符串转为 `Map<String, dynamic>` 或 `List` |
+| 手写 Model 类 | 定义 `fromJson` 工厂构造函数 + `toJson()` 方法 |
+| `json.encode()` | 将 Model 对象序列化回 JSON 字符串，内部自动调用 `toJson()` |
+| `@JsonSerializable()` | 自动生成序列化代码的注解（配合 `json_serializable` + `build_runner`） |
+| 嵌套 JSON | 通过特殊标志符处理对象嵌套与数组关系 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.7%20JSON转Dart%20Model-代码.png) | ![运行](assets/演示截图/11.7%20JSON转Dart%20Model-运行效果.png) |
+
+### 核心代码示例
+
+**手写 Model 类**
+
+```dart
+class User {
+  final String name;
+  final String email;
+
+  User(this.name, this.email);
+
+  User.fromJson(Map<String, dynamic> json)
+    : name = json['name'],
+      email = json['email'];
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'name': name,
+    'email': email,
+  };
+}
+```
+
+**反序列化 & 序列化**
+
+```dart
+// JSON 字符串 → Map
+String userJson = '{"name":"John Smith","email":"john@example.com"}';
+Map<String, dynamic> userMap = json.decode(userJson);
+
+// Map → Model
+User user = User.fromJson(userMap);
+print(user.name);  // John Smith
+
+// Model → JSON 字符串
+String encoded = json.encode(user);
+// {"name":"John Smith","email":"john@example.com"}
+```
+
+**json_serializable 自动化方案（推荐用于大项目）**
+
+```dart
+import 'package:json_annotation/json_annotation.dart';
+part 'user.g.dart';
+
+@JsonSerializable()
+class User {
+  User(this.name, this.email);
+
+  String name;
+  String email;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+}
+```
+
+```bash
+flutter pub run build_runner build
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/json_model.dart
+```
