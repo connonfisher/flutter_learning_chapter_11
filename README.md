@@ -209,3 +209,84 @@ void main() {
 ```bash
 flutter run -t lib/chapter11/http_client.dart
 ```
+
+---
+
+## 11.3 Http请求-Dio
+
+> 原文链接：[https://book.flutterchina.club/chapter11/dio.html](https://book.flutterchina.club/chapter11/dio.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| `Dio` | 强大简洁的 Dart HTTP 请求库，支持拦截器、FormData、文件上传/下载等 |
+| `GET` / `POST` | `dio.get()` / `dio.post()`，支持 queryParameters 和 data 参数 |
+| 并发请求 | `Future.wait([dio.post(...), dio.get(...)])` 同时发起多个请求 |
+| 文件下载 | `dio.download(url, savePath)` |
+| `FormData` | 支持 multipart/form-data 表单及多文件上传 |
+| `FutureBuilder` | 异步请求与 UI 状态联动：Loading → 错误/成功 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.3%20Http请求-Dio-代码.png) | ![运行](assets/演示截图/11.3%20Http请求-Dio-运行效果.png) |
+
+### 核心代码示例
+
+**初始化 Dio 并请求 GitHub API**
+
+```dart
+final Dio _dio = Dio();
+
+FutureBuilder(
+  future: _dio.get("https://api.github.com/orgs/flutterchina/repos"),
+  builder: (BuildContext context, AsyncSnapshot snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      if (snapshot.hasError) {
+        return Text(snapshot.error.toString());
+      }
+      Response response = snapshot.data;
+      return ListView(
+        children: response.data
+            .map<Widget>((e) => ListTile(title: Text(e["full_name"])))
+            .toList(),
+      );
+    }
+    return const CircularProgressIndicator();
+  },
+)
+```
+
+**GET / POST / FormData 基本用法**
+
+```dart
+// GET
+response = await dio.get("/test", queryParameters: {"id": 12, "name": "wendu"});
+
+// POST
+response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
+
+// 并发请求
+response = await Future.wait([dio.post("/info"), dio.get("/token")]);
+
+// FormData 上传
+FormData formData = FormData.from({"name": "wendux", "age": 25});
+response = await dio.post("/info", data: formData);
+```
+
+**配置代理 & 证书校验**
+
+```dart
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+  client.findProxy = (uri) => "PROXY 192.168.1.2:8888";
+  client.badCertificateCallback = (cert, host, port) => cert.pem == PEM;
+};
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/dio_request.dart
+```
