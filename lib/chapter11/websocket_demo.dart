@@ -1,7 +1,7 @@
 // 来源：https://book.flutterchina.club/chapter11/websocket.html
 // 功能说明：演示如何使用 web_socket_channel 库与 WebSocket 服务器实时通信。
 // WebSocket 通信四步：
-//   1) 连接到 WebSocket 服务器 (IOWebSocketChannel.connect)
+//   1) 连接到 WebSocket 服务器 (WebSocketChannel.connect)
 //   2) 通过 StreamBuilder 监听 channel.stream 接收消息
 //   3) 通过 channel.sink.add(...) 发送消息
 //   4) 在 dispose 时 channel.sink.close() 关闭连接
@@ -9,7 +9,7 @@
 //   服务端会原样回显，UI 上以 "echo: xxx" 形式展示。
 
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketRoute extends StatefulWidget {
   const WebSocketRoute({super.key});
@@ -20,13 +20,13 @@ class WebSocketRoute extends StatefulWidget {
 
 class _WebSocketRouteState extends State<WebSocketRoute> {
   final TextEditingController _controller = TextEditingController();
-  late IOWebSocketChannel channel;
+  late WebSocketChannel channel;
   String _text = "";
 
   @override
   void initState() {
     super.initState();
-    channel = IOWebSocketChannel.connect('wss://echo.websocket.events');
+    channel = WebSocketChannel.connect(Uri.parse('wss://echo.websocket.events'));
   }
 
   @override

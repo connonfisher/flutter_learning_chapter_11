@@ -3,21 +3,21 @@
 // 首页以 Card 列表的形式展示所有小节，点击即可跳转到对应演示页面；
 // 每个小节文件也可独立运行（文件末尾都附带 main() 入口）。
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 
-import 'chapter11/file_operation.dart';
-import 'chapter11/http_client.dart';
+import 'chapter11/file_operation.dart'
+    if (dart.library.html) 'chapter11/web_stub.dart';
+import 'chapter11/http_client.dart'
+    if (dart.library.html) 'chapter11/web_stub.dart';
 import 'chapter11/dio_request.dart';
-import 'chapter11/download_with_chunks.dart';
+import 'chapter11/download_with_chunks.dart'
+    if (dart.library.html) 'chapter11/web_stub.dart';
 import 'chapter11/websocket_demo.dart';
-import 'chapter11/socket_demo.dart';
+import 'chapter11/socket_demo.dart'
+    if (dart.library.html) 'chapter11/web_stub.dart';
 import 'chapter11/json_model.dart';
 
-void main() {
-  HttpOverrides.global = MyHttpOverrides();
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
