@@ -37,32 +37,14 @@ class HttpTestRoute extends StatelessWidget {
   Widget build(BuildContext context) => _notAvailable('11.2 HttpClient');
 }
 
-class DioRequestRoute extends StatelessWidget {
-  const DioRequestRoute({super.key});
-  @override
-  Widget build(BuildContext context) => _notAvailable('11.3 Dio');
-}
-
 class DownloadWithChunksRoute extends StatelessWidget {
   const DownloadWithChunksRoute({super.key});
   @override
   Widget build(BuildContext context) => _notAvailable('11.4 Http分块下载');
 }
 
-class WebSocketRoute extends StatelessWidget {
-  const WebSocketRoute({super.key});
-  @override
-  Widget build(BuildContext context) => _notAvailable('11.5 WebSocket');
-}
-
 class SocketRoute extends StatelessWidget {
   const SocketRoute({super.key});
   @override
   Widget build(BuildContext context) => _notAvailable('11.6 Socket API');
-}
-
-class JsonModelRoute extends StatelessWidget {
-  const JsonModelRoute({super.key});
-  @override
-  Widget build(BuildContext context) => _notAvailable('11.7 JSON转Dart Model');
 }
