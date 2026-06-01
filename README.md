@@ -146,3 +146,66 @@ Future<void> _incrementCounter() async {
 ```bash
 flutter run -t lib/chapter11/file_operation.dart
 ```
+
+---
+
+## 11.2 Http请求-HttpClient
+
+> 原文链接：[https://book.flutterchina.club/chapter11/http.html](https://book.flutterchina.club/chapter11/http.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+|--------|------|
+| `HttpClient` | `dart:io` 内置 HTTP 客户端，五步完成一次请求 |
+| `HttpClientRequest` | 打开连接、设置请求头、发送请求体 |
+| `HttpClientResponse` | 响应流通过 `utf8.decoder` 解码为字符串 |
+| `HttpOverrides` | 全局注册以解决 Android API 36 上 `Platform._version` 兼容问题 |
+| Basic/Digest 认证 | `addCredentials()` 添加用户凭据 |
+| 代理 | `findProxy` 设置请求代理 |
+| 证书校验 | `badCertificateCallback` 校验自签名证书 |
+
+### 演示效果
+
+| 代码截图 | 运行效果 |
+|---------|---------|
+| ![代码](assets/演示截图/11.2%20Http请求-HttpClient-代码.png) | ![运行](assets/演示截图/11.2%20Http请求-HttpClient-运行效果.png) |
+
+### 核心代码示例
+
+**创建 HttpClient 并发起请求**
+
+```dart
+Future<void> request() async {
+  HttpClient httpClient = HttpClient();
+  // 打开连接
+  HttpClientRequest request = await httpClient.getUrl(
+    Uri.parse("https://www.baidu.com"),
+  );
+  // 设置请求头
+  request.headers.add("user-agent", "Mozilla/5.0 ...");
+  // 等待连接服务器
+  HttpClientResponse response = await request.close();
+  // 读取响应内容
+  _text = await response.transform(utf8.decoder).join();
+  // 关闭客户端
+  httpClient.close();
+}
+```
+
+**HttpOverrides 全局注册（解决 Android 兼容性）**
+
+```dart
+class MyHttpOverrides extends HttpOverrides {}
+
+void main() {
+  HttpOverrides.global = MyHttpOverrides();
+  runApp(const MaterialApp(home: HttpTestRoute()));
+}
+```
+
+### 独立运行
+
+```bash
+flutter run -t lib/chapter11/http_client.dart
+```

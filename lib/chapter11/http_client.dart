@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+class MyHttpOverrides extends HttpOverrides {}
+
 class HttpTestRoute extends StatefulWidget {
   const HttpTestRoute({super.key});
 
@@ -76,4 +78,7 @@ class _HttpTestRouteState extends State<HttpTestRoute> {
   }
 }
 
-void main() => runApp(const MaterialApp(home: HttpTestRoute()));
+void main() {
+  HttpOverrides.global = MyHttpOverrides();
+  runApp(const MaterialApp(home: HttpTestRoute()));
+}
