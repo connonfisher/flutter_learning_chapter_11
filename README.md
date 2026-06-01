@@ -53,10 +53,59 @@ flutter_learning_chapter_11/
 
 ---
 
-> 📌 后续每完成一个小节的验证（截图 + 文档），会在分隔线下方按统一格式增补：
->
-> - 原文链接
-> - 功能介绍（表格）
-> - 代码截图 / 运行效果截图（双图对比）
-> - 核心代码示例（可直接复制）
-> - 独立运行命令
+## 11.1 文件操作
+
+> 📖 原文链接：[11.1 文件操作](https://book.flutterchina.club/chapter11/file_operation.html)
+
+### 功能介绍
+
+| 知识点 | 说明 |
+| --- | --- |
+| `path_provider` | 获取应用沙盒目录（文档目录、临时目录、外部存储） |
+| `dart:io` File | 文件读写：`readAsString()` / `writeAsString()` |
+| `getApplicationDocumentsDirectory()` | 获取只有本应用可访问的持久化目录 |
+| 计数器持久化 | 点击次数写入 `counter.txt`，重启后可恢复 |
+
+### 演示截图
+
+| 代码 | 运行效果 |
+| --- | --- |
+| ![11.1 代码](assets/演示截图/11.1%20文件操作-代码.png) | ![11.1 运行](assets/演示截图/11.1%20文件操作-运行效果.png) |
+
+### 核心代码示例
+
+**获取文件路径 & 读取内容：**
+
+```dart
+Future<File> _getLocalFile() async {
+  String dir = (await getApplicationDocumentsDirectory()).path;
+  return File('$dir/counter.txt');
+}
+
+Future<int> _readCounter() async {
+  try {
+    File file = await _getLocalFile();
+    String contents = await file.readAsString();
+    return int.parse(contents);
+  } on FileSystemException {
+    return 0;
+  }
+}
+```
+
+**写入文件（持久化计数）：**
+
+```dart
+Future<void> _incrementCounter() async {
+  setState(() { _counter++; });
+  await (await _getLocalFile()).writeAsString('$_counter');
+}
+```
+
+### 独立运行
+
+```bash
+# 在 VS Code 中打开 lib/chapter11/file_operation.dart，按 F5 即可
+# 或命令行指定入口：
+flutter run -t lib/chapter11/file_operation.dart
+```
